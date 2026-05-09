@@ -12,6 +12,7 @@ type componentKey int
 
 const storageKey componentKey = iota
 
+// Component identifies a named unit within a module and its position in the call hierarchy.
 type Component interface {
 	Module() string
 	Path() []string
@@ -34,11 +35,13 @@ func insert(ctx context.Context, module string, name string, path []string) cont
 	})
 }
 
+// Get retrieves the current component from the context; returns false if none is present.
 func Get(ctx context.Context) (Component, bool) {
 	t, ok := ctx.Value(storageKey).(component)
 	return t, ok
 }
 
+// MustStart is Start but panics on error.
 func MustStart(ctx context.Context, module string, name string) context.Context {
 	if ctx == nil {
 		panic("context is nil")
@@ -52,6 +55,7 @@ func MustStart(ctx context.Context, module string, name string) context.Context 
 	return insert(ctx, module, name, []string{})
 }
 
+// MustNext is Next but panics on error.
 func MustNext(ctx context.Context, name string) context.Context {
 	if ctx == nil {
 		panic("context is nil")
@@ -69,6 +73,7 @@ func MustNext(ctx context.Context, name string) context.Context {
 	return insert(ctx, c.Module(), name, c.Path())
 }
 
+// Start sets a new component on the context, resetting any existing component.
 func Start(ctx context.Context, module string, name string) (context.Context, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("context is nil")
@@ -82,6 +87,7 @@ func Start(ctx context.Context, module string, name string) (context.Context, er
 	return insert(ctx, module, name, []string{}), nil
 }
 
+// Next appends name to the current component path, inheriting its module.
 func Next(ctx context.Context, name string) (context.Context, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("context is nil")
@@ -99,6 +105,7 @@ func Next(ctx context.Context, name string) (context.Context, error) {
 	return insert(ctx, c.Module(), name, c.Path()), nil
 }
 
+// GetFields returns the component as a string map with keys "module" and "path".
 func GetFields(ctx context.Context) (map[string]string, bool) {
 	c, ok := Get(ctx)
 	if !ok {
@@ -111,6 +118,7 @@ func GetFields(ctx context.Context) (map[string]string, bool) {
 	}, true
 }
 
+// Attrs returns the slog projection of GetFields.
 func Attrs(ctx context.Context) ([]slog.Attr, bool) {
 	fields, ok := GetFields(ctx)
 	if !ok {
