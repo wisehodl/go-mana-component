@@ -3,6 +3,7 @@
 Component identity propagation for layered Go libraries.
 
 Source: https://git.wisehodl.dev/jay/go-mana-component
+
 Mirror: https://github.com/wisehodl/go-mana-component
 
 ## What this library does
