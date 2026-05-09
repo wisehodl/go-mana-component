@@ -73,8 +73,19 @@ func NewWorker(ctx context.Context, id string, handler slog.Handler) (*Worker, e
 At the connection layer, another `MustExtend` call extends the path to
 `outbound_pool.outbound_worker.connection` with no additional plumbing.
 
+### Usage Notes
+
+**Error-Returning vs Panic Variants**:
+
+- Use `New` and `Extend` when a missing or invalid component is a recoverable
+condition.
+- Use `MustNew` and `MustExtend` at library boundaries where a missing
+component is a programming error that should halt execution immediately.
+
+**Generic Output**:
+
 `GetFields` provides the component fields as a `map[string]string` for non-slog
-consumers.
+consumers such as OpenTelemetry or Prometheus.
 
 ## Testing
 
