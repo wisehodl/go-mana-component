@@ -48,36 +48,17 @@ func Get(ctx context.Context) (Component, bool) {
 	return t, ok
 }
 
-// MustNew is New but panics on error.
-func MustNew(ctx context.Context, module string, name string) context.Context {
-	if ctx == nil {
-		panic("context is nil")
-	}
-	if module == "" {
-		panic("module cannot be empty")
-	}
-	if name == "" {
-		panic("name cannot be empty")
-	}
-	return insert(ctx, module, name, []string{})
-}
-
-// MustExtend is Extend but panics on error.
-func MustExtend(ctx context.Context, name string) context.Context {
-	if ctx == nil {
-		panic("context is nil")
-	}
-
+// GetFields returns the component as a string map with keys "module" and "path".
+func GetFields(ctx context.Context) (map[string]string, bool) {
 	c, ok := Get(ctx)
 	if !ok {
-		panic("missing parent component")
+		return nil, false
 	}
 
-	if name == "" {
-		panic("name cannot be empty")
-	}
-
-	return insert(ctx, c.Module(), name, c.Path())
+	return map[string]string{
+		"module": c.Module(),
+		"path":   c.PathString(),
+	}, true
 }
 
 // New sets a new component on the context, resetting any existing component.
@@ -112,15 +93,34 @@ func Extend(ctx context.Context, name string) (context.Context, error) {
 	return insert(ctx, c.Module(), name, c.Path()), nil
 }
 
-// GetFields returns the component as a string map with keys "module" and "path".
-func GetFields(ctx context.Context) (map[string]string, bool) {
-	c, ok := Get(ctx)
-	if !ok {
-		return nil, false
+// MustNew is New but panics on error.
+func MustNew(ctx context.Context, module string, name string) context.Context {
+	if ctx == nil {
+		panic("context is nil")
+	}
+	if module == "" {
+		panic("module cannot be empty")
+	}
+	if name == "" {
+		panic("name cannot be empty")
+	}
+	return insert(ctx, module, name, []string{})
+}
+
+// MustExtend is Extend but panics on error.
+func MustExtend(ctx context.Context, name string) context.Context {
+	if ctx == nil {
+		panic("context is nil")
 	}
 
-	return map[string]string{
-		"module": c.Module(),
-		"path":   c.PathString(),
-	}, true
+	c, ok := Get(ctx)
+	if !ok {
+		panic("missing parent component")
+	}
+
+	if name == "" {
+		panic("name cannot be empty")
+	}
+
+	return insert(ctx, c.Module(), name, c.Path())
 }
