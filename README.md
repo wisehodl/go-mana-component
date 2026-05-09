@@ -9,7 +9,7 @@ Mirror: https://github.com/wisehodl/go-mana-component
 
 - Injects a named component identity into a `context.Context` at library boundaries
 - Propagates module identity and component hierarchy across layers
-- Provides `slog` attributes for structured logging and a string map for generic consumers
+- Implements `slog.LogValuer` for use as a structured log attribute, and provides a string map for generic consumers
 
 ## What this library does not do
 
@@ -40,15 +40,15 @@ constructs a logger internally.
 ### At a library boundary
 
 A top-level constructor receives a context and creates a new component
-identity. Injecting the component attributes on the logger allows it to carry
-`module` and `path` automatically.
+identity. Passing the component as a `slog.Any` group attribute allows the
+logger to carry `module` and `path` automatically.
 
 ```go
 func NewPool(ctx context.Context, id string, handler slog.Handler) (*Pool, error) {
     ctx = component.MustNew(ctx, "honeybee", "outbound_pool")
 
-    attrs, _ := component.Attrs(ctx)
-    logger := slog.New(handler).WithAttrs(attrs).With(slog.String("pool_id", id))
+    c, _ := component.Get(ctx)
+    logger := slog.New(handler).With(slog.Any("component", c), slog.String("pool_id", id))
 
     return &Pool{ctx: ctx, logger: logger}, nil
 }
@@ -63,8 +63,8 @@ path. No parent identifiers need to be passed as arguments.
 func NewWorker(ctx context.Context, id string, handler slog.Handler) (*Worker, error) {
     ctx = component.MustExtend(ctx, "outbound_worker")
 
-    attrs, _ := component.Attrs(ctx)
-    logger := slog.New(handler).WithAttrs(attrs).With(slog.Any("peer_id", id))
+    c, _ := component.Get(ctx)
+    logger := slog.New(handler).With(slog.Any("component", c), slog.Any("peer_id", id))
 
     return &Worker{ctx: ctx, logger: logger}, nil
 }

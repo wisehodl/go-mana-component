@@ -2,7 +2,6 @@ package component
 
 import (
 	"context"
-	"log/slog"
 	"slices"
 	"testing"
 )
@@ -120,22 +119,18 @@ func TestGetFields(t *testing.T) {
 	}
 }
 
-func assertAttr(t *testing.T, attr slog.Attr, key string, value string) {
-	t.Helper()
-	if attr.Key != key {
-		t.Errorf("expected attr key %q, got %q", key, attr.Key)
-	}
-	if attr.Value.String() != value {
-		t.Errorf("expected attr value %q, got %q", value, attr.Value.String())
-	}
-}
-
-func TestAttrs(t *testing.T) {
+func TestLogValue(t *testing.T) {
 	ctx := MustNew(context.Background(), "mymodule", "mycomponent")
-	attrs, ok := Attrs(ctx)
-	if !ok {
-		t.Fatal("expected attrs in context")
+	c, _ := Get(ctx)
+	v := c.LogValue()
+	attrs := v.Group()
+	if len(attrs) != 2 {
+		t.Fatalf("expected 2 attrs, got %d", len(attrs))
 	}
-	assertAttr(t, attrs[0], "module", "mymodule")
-	assertAttr(t, attrs[1], "path", "mycomponent")
+	if attrs[0].Key != "module" || attrs[0].Value.String() != "mymodule" {
+		t.Errorf("expected module=mymodule, got %s=%s", attrs[0].Key, attrs[0].Value.String())
+	}
+	if attrs[1].Key != "path" || attrs[1].Value.String() != "mycomponent" {
+		t.Errorf("expected path=mycomponent, got %s=%s", attrs[1].Key, attrs[1].Value.String())
+	}
 }

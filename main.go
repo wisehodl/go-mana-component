@@ -17,6 +17,7 @@ type Component interface {
 	Module() string
 	Path() []string
 	PathString() string
+	LogValue() slog.Value
 }
 
 type component struct {
@@ -27,6 +28,12 @@ type component struct {
 func (c component) Module() string     { return c.module }
 func (c component) Path() []string     { return slices.Clone(c.path) }
 func (c component) PathString() string { return strings.Join(c.path, ".") }
+func (c component) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("module", c.module),
+		slog.String("path", c.PathString()),
+	)
+}
 
 func insert(ctx context.Context, module string, name string, path []string) context.Context {
 	return context.WithValue(ctx, storageKey, component{
@@ -115,18 +122,5 @@ func GetFields(ctx context.Context) (map[string]string, bool) {
 	return map[string]string{
 		"module": c.Module(),
 		"path":   c.PathString(),
-	}, true
-}
-
-// Attrs returns the slog projection of GetFields.
-func Attrs(ctx context.Context) ([]slog.Attr, bool) {
-	fields, ok := GetFields(ctx)
-	if !ok {
-		return nil, false
-	}
-
-	return []slog.Attr{
-		slog.String("module", fields["module"]),
-		slog.String("path", fields["path"]),
 	}, true
 }
