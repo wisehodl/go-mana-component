@@ -41,8 +41,8 @@ func Get(ctx context.Context) (Component, bool) {
 	return t, ok
 }
 
-// MustStart is Start but panics on error.
-func MustStart(ctx context.Context, module string, name string) context.Context {
+// MustNew is New but panics on error.
+func MustNew(ctx context.Context, module string, name string) context.Context {
 	if ctx == nil {
 		panic("context is nil")
 	}
@@ -55,8 +55,8 @@ func MustStart(ctx context.Context, module string, name string) context.Context 
 	return insert(ctx, module, name, []string{})
 }
 
-// MustNext is Next but panics on error.
-func MustNext(ctx context.Context, name string) context.Context {
+// MustExtend is Extend but panics on error.
+func MustExtend(ctx context.Context, name string) context.Context {
 	if ctx == nil {
 		panic("context is nil")
 	}
@@ -73,8 +73,8 @@ func MustNext(ctx context.Context, name string) context.Context {
 	return insert(ctx, c.Module(), name, c.Path())
 }
 
-// Start sets a new component on the context, resetting any existing component.
-func Start(ctx context.Context, module string, name string) (context.Context, error) {
+// New sets a new component on the context, resetting any existing component.
+func New(ctx context.Context, module string, name string) (context.Context, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("context is nil")
 	}
@@ -87,8 +87,8 @@ func Start(ctx context.Context, module string, name string) (context.Context, er
 	return insert(ctx, module, name, []string{}), nil
 }
 
-// Next appends name to the current component path, inheriting its module.
-func Next(ctx context.Context, name string) (context.Context, error) {
+// Extend appends name to the current component path, inheriting its module.
+func Extend(ctx context.Context, name string) (context.Context, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("context is nil")
 	}
