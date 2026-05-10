@@ -80,6 +80,17 @@ func TestExtend(t *testing.T) {
 		}
 	})
 
+	t.Run("try passes through", func(t *testing.T) {
+		inCtx := context.Background()
+		outCtx, err := TryExtend(inCtx, "subcomponent")
+		if err != nil {
+			t.Fatal("unexpected error:", err)
+		}
+		if outCtx != inCtx {
+			t.Errorf("expected context to pass through")
+		}
+	})
+
 	t.Run("must variant should panic", func(t *testing.T) {
 		assertPanics(t, func() {
 			MustExtend(context.Background(), "subcomponent")

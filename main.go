@@ -93,6 +93,21 @@ func Extend(ctx context.Context, name string) (context.Context, error) {
 	return insert(ctx, c.Module(), name, c.Path()), nil
 }
 
+// TryExtend returns ctx if no parent component is attached, otherwise
+// extends the existing component path.
+func TryExtend(ctx context.Context, name string) (context.Context, error) {
+	if ctx == nil {
+		return nil, fmt.Errorf("context is nil")
+	}
+
+	c, ok := Get(ctx)
+	if !ok || name == "" {
+		return ctx, nil
+	}
+
+	return insert(ctx, c.Module(), name, c.Path()), nil
+}
+
 // MustNew is New but panics on error.
 func MustNew(ctx context.Context, module string, name string) context.Context {
 	if ctx == nil {

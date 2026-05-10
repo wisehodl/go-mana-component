@@ -76,12 +76,14 @@ At the connection layer, another `MustExtend` call extends the path to
 
 ### Usage Notes
 
-**Error-Returning vs Panic Variants**:
+**Function Variants**:
 
 - Use `New` and `Extend` when a missing or invalid component is a recoverable
 condition.
 - Use `MustNew` and `MustExtend` at library boundaries where a missing
 component is a programming error that should halt execution immediately.
+- Use `TryExtend` if you only want to extend a component if it exists,
+otherwise use the parent context as-is.
 
 **Generic Output**:
 
