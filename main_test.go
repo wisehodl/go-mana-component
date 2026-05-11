@@ -22,8 +22,8 @@ func TestNew(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		c, ok := Get(ctx)
-		if !ok {
+		c := FromContext(ctx)
+		if c == nil {
 			t.Fatal("expected component in context")
 		}
 		if c.Module() != "mymodule" {
@@ -58,8 +58,8 @@ func TestExtend(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		c, ok := Get(ctx)
-		if !ok {
+		c := FromContext(ctx)
+		if c == nil {
 			t.Fatal("expected component in context")
 		}
 		if c.Module() != "mymodule" {
@@ -87,28 +87,25 @@ func TestExtend(t *testing.T) {
 	})
 }
 
-func TestGet(t *testing.T) {
-	_, ok := Get(context.Background())
-	if ok {
+func TestFromContext(t *testing.T) {
+	if FromContext(context.Background()) != nil {
 		t.Fatal("expected no component on bare context")
 	}
 
 	ctx := MustNew(context.Background(), "mymodule", "mycomponent")
-	_, ok = Get(ctx)
-	if !ok {
+	if FromContext(ctx) == nil {
 		t.Fatal("expected component in context")
 	}
 }
 
-func TestGetFields(t *testing.T) {
-	_, ok := GetFields(context.Background())
-	if ok {
+func TestFieldsFromContext(t *testing.T) {
+	if FieldsFromContext(context.Background()) != nil {
 		t.Fatal("expected no fields on bare context")
 	}
 
 	ctx := MustNew(context.Background(), "mymodule", "mycomponent")
-	fields, ok := GetFields(ctx)
-	if !ok {
+	fields := FieldsFromContext(ctx)
+	if fields == nil {
 		t.Fatal("expected fields in context")
 	}
 	if fields["module"] != "mymodule" {
@@ -121,7 +118,7 @@ func TestGetFields(t *testing.T) {
 
 func TestLogValue(t *testing.T) {
 	ctx := MustNew(context.Background(), "mymodule", "mycomponent")
-	c, _ := Get(ctx)
+	c := FromContext(ctx)
 	v := c.LogValue()
 	attrs := v.Group()
 	if len(attrs) != 2 {

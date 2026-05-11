@@ -42,23 +42,25 @@ func insert(ctx context.Context, module string, name string, path []string) cont
 	})
 }
 
-// Get retrieves the current component from the context; returns false if none is present.
-func Get(ctx context.Context) (Component, bool) {
-	t, ok := ctx.Value(storageKey).(component)
-	return t, ok
+// FromContext retrieves the current component from the context; returns nil if none is present.
+func FromContext(ctx context.Context) Component {
+	c, ok := ctx.Value(storageKey).(component)
+	if !ok {
+		return nil
+	}
+	return c
 }
 
-// GetFields returns the component as a string map with keys "module" and "path".
-func GetFields(ctx context.Context) (map[string]string, bool) {
-	c, ok := Get(ctx)
-	if !ok {
-		return nil, false
+// FieldsFromContext returns the component as a string map with keys "module" and "path"; returns nil if none is present.
+func FieldsFromContext(ctx context.Context) map[string]string {
+	c := FromContext(ctx)
+	if c == nil {
+		return nil
 	}
-
 	return map[string]string{
 		"module": c.Module(),
 		"path":   c.PathString(),
-	}, true
+	}
 }
 
 // New sets a new component on the context, resetting any existing component.
@@ -81,8 +83,8 @@ func Extend(ctx context.Context, name string) (context.Context, error) {
 		return nil, fmt.Errorf("context is nil")
 	}
 
-	c, ok := Get(ctx)
-	if !ok {
+	c := FromContext(ctx)
+	if c == nil {
 		return nil, fmt.Errorf("missing parent component")
 	}
 
@@ -113,8 +115,8 @@ func MustExtend(ctx context.Context, name string) context.Context {
 		panic("context is nil")
 	}
 
-	c, ok := Get(ctx)
-	if !ok {
+	c := FromContext(ctx)
+	if c == nil {
 		panic("missing parent component")
 	}
 

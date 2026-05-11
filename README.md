@@ -48,7 +48,7 @@ logger to carry `module` and `path` automatically.
 func NewPool(ctx context.Context, id string, handler slog.Handler) (*Pool, error) {
     ctx = component.MustNew(ctx, "honeybee", "outbound_pool")
 
-    c, _ := component.Get(ctx)
+    c := component.FromContext(ctx)
     logger := slog.New(handler).With(slog.Any("component", c), slog.String("pool_id", id))
 
     return &Pool{ctx: ctx, logger: logger}, nil
@@ -64,7 +64,7 @@ path. No parent identifiers need to be passed as arguments.
 func NewWorker(ctx context.Context, id string, handler slog.Handler) (*Worker, error) {
     ctx = component.MustExtend(ctx, "outbound_worker")
 
-    c, _ := component.Get(ctx)
+    c := component.FromContext(ctx)
     logger := slog.New(handler).With(slog.Any("component", c), slog.Any("peer_id", id))
 
     return &Worker{ctx: ctx, logger: logger}, nil
@@ -85,8 +85,8 @@ component is a programming error that should halt execution immediately.
 
 **Generic Output**:
 
-`GetFields` provides the component fields as a `map[string]string` for non-slog
-consumers such as OpenTelemetry or Prometheus.
+`FieldsFromContext` provides the component fields as a `map[string]string` for non-slog
+consumers such as OpenTelemetry or Prometheus. It returns `nil` if no component is present.
 
 ## Testing
 
